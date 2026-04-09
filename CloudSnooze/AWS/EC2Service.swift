@@ -5,7 +5,7 @@
 import Foundation
 import os
 
-private nonisolated(unsafe) let log = Logger(subsystem: "ultara.cloud.CloudSnooze", category: "EC2")
+private let log = Logger(subsystem: "ultara.cloud.CloudSnooze", category: "EC2")
 
 @Observable
 final class EC2Service {
@@ -89,6 +89,7 @@ final class EC2Service {
         }
 
         let client = self.client
+        let taskLog = log
         return await withTaskGroup(of: [EC2Instance].self) { group in
             for region in regions {
                 group.addTask {
@@ -112,11 +113,11 @@ final class EC2Service {
                         let data      = try await client.execute(req)
                         let instances = await EC2Service.parseInstances(data: data, region: region)
                         if !instances.isEmpty {
-                            log.debug("\(region, privacy: .public): found \(instances.count, privacy: .public) instance(s)")
+                            taskLog.debug("\(region, privacy: .public): found \(instances.count, privacy: .public) instance(s)")
                         }
                         return instances
                     } catch {
-                        log.info("\(region, privacy: .public): fetch failed — \(error.localizedDescription, privacy: .public)")
+                        taskLog.info("\(region, privacy: .public): fetch failed — \(error.localizedDescription, privacy: .public)")
                         return []
                     }
                 }

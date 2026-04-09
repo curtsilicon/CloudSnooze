@@ -4,7 +4,7 @@
 import SwiftUI
 import os
 
-private nonisolated(unsafe) let log = Logger(subsystem: "ultara.cloud.CloudSnooze", category: "EC2Control")
+private let log = Logger(subsystem: "ultara.cloud.CloudSnooze", category: "EC2Control")
 
 // MARK: - CloudWidget conformance
 
