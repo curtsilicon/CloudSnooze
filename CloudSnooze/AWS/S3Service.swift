@@ -126,6 +126,7 @@ private final class S3BucketXMLParser: NSObject, XMLParserDelegate {
     func parse() throws -> [S3Bucket] {
         let p = XMLParser(data: data)
         p.delegate = self
+        p.shouldResolveExternalEntities = false
         p.parse()
         if let e = parseError { throw e }
         return buckets
@@ -175,6 +176,7 @@ private final class S3ObjectXMLParser: NSObject, XMLParserDelegate {
     func parse() throws -> [S3Service.S3Object] {
         let p = XMLParser(data: data)
         p.delegate = self
+        p.shouldResolveExternalEntities = false
         p.parse()
         if let e = parseError { throw e }
         return objects

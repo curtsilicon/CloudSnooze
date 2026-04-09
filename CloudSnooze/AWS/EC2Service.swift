@@ -3,6 +3,9 @@
 // Creation APIs (RunInstances, etc.) are intentionally omitted.
 
 import Foundation
+import os
+
+private let log = Logger(subsystem: "ultara.cloud.CloudSnooze", category: "EC2")
 
 @Observable
 final class EC2Service {
@@ -74,14 +77,14 @@ final class EC2Service {
         let regions: [String]
         do {
             regions = try await describeRegions(credentials: credentials)
-            print("[EC2] DescribeRegions returned \(regions.count) regions: \(regions)")
+            log.debug("DescribeRegions returned \(regions.count, privacy: .public) regions")
         } catch {
-            print("[EC2] DescribeRegions not permitted, falling back to known region list: \(error)")
+            log.info("DescribeRegions not permitted, falling back to known region list: \(error.localizedDescription, privacy: .public)")
             regions = Self.knownRegions
         }
 
         guard !regions.isEmpty else {
-            print("[EC2] Region list is empty — falling back to home region only")
+            log.debug("Region list is empty — falling back to home region only")
             return try await describeInstances(credentials: credentials)
         }
 
@@ -109,11 +112,11 @@ final class EC2Service {
                         let data      = try await client.execute(req)
                         let instances = await EC2Service.parseInstances(data: data, region: region)
                         if !instances.isEmpty {
-                            print("[EC2] \(region): found \(instances.count) instance(s)")
+                            log.debug("\(region, privacy: .public): found \(instances.count, privacy: .public) instance(s)")
                         }
                         return instances
                     } catch {
-                        print("[EC2] \(region): FAILED — \(error)")
+                        log.info("\(region, privacy: .public): fetch failed — \(error.localizedDescription, privacy: .public)")
                         return []
                     }
                 }
@@ -121,7 +124,7 @@ final class EC2Service {
 
             var all: [EC2Instance] = []
             for await batch in group { all.append(contentsOf: batch) }
-            print("[EC2] Total instances found across all regions: \(all.count)")
+            log.debug("Total instances found across all regions: \(all.count, privacy: .public)")
             return all.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         }
     }
@@ -381,7 +384,7 @@ private final class EC2RegionsParser: NSObject, XMLParserDelegate {
         parser.shouldProcessNamespaces = true
         parser.parse()
         let result = regions.filter { !$0.isEmpty }.sorted()
-        print("[EC2] parseRegions found \(result.count) regions")
+        log.debug("parseRegions found \(result.count, privacy: .public) regions")
         return result
     }
 

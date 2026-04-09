@@ -58,14 +58,9 @@ struct Dashboard: Identifiable, Codable {
             config: [:],
             sortOrder: 2
         )
-        let cpuWidget = DashboardWidget(
-            type: WidgetTypeKey.cpuChart,
-            config: [:],
-            sortOrder: 3
-        )
         return Dashboard(
             name: "My Dashboard",
-            widgets: [costWidget, statusWidget, controlWidget, cpuWidget]
+            widgets: [costWidget, statusWidget, controlWidget]
         )
     }
 }
@@ -75,7 +70,6 @@ struct Dashboard: Identifiable, Codable {
 enum WidgetTypeKey {
     static let serverStatus   = "server_status"
     static let serverControls = "server_controls"
-    static let cpuChart       = "cpu_chart"
     static let costMonth      = "cost_month"
 }
 
@@ -84,7 +78,7 @@ enum WidgetTypeKey {
 @Observable
 final class DashboardStore {
 
-    private static let storageKey = "cloudremote.dashboards"
+    private static let storageKey = "ultara.cloud.CloudSnooze.dashboards"
 
     var dashboards: [Dashboard] = []
 

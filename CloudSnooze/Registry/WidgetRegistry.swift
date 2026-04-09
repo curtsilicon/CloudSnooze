@@ -52,7 +52,6 @@ final class WidgetRegistry {
     private func registerDefaults() {
         register(ServerStatusWidgetView.self)
         register(ServerControlWidgetView.self)
-        register(CPUChartWidgetView.self)
         register(CostWidgetView.self)
     }
 }

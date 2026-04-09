@@ -2,6 +2,9 @@
 // Provides Start / Stop / Reboot buttons for EC2 instances.
 
 import SwiftUI
+import os
+
+private let log = Logger(subsystem: "ultara.cloud.CloudSnooze", category: "EC2Control")
 
 // MARK: - CloudWidget conformance
 
@@ -107,7 +110,7 @@ struct ServerControlWidgetView: View, CloudWidget {
                 appState.discoveredInstances = updated
             }
             if let target = fresh.first(where: { $0.id == instanceId }) {
-                print("[EC2Control] poll \(attempt): \(instanceId) state=\(target.state.rawValue)")
+                log.debug("poll \(attempt, privacy: .public): state=\(target.state.rawValue, privacy: .public)")
                 if !target.state.isTransient { break }
             } else {
                 break

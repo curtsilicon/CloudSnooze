@@ -2,6 +2,9 @@
 // Central observable app state injected as an Environment value.
 
 import Foundation
+import os
+
+private let log = Logger(subsystem: "ultara.cloud.CloudSnooze", category: "AppState")
 
 @Observable
 final class AppState {
@@ -58,10 +61,10 @@ final class AppState {
 
     func runDiscoveryRefresh() async {
         guard let creds = credentials else {
-            print("[AppState] runDiscoveryRefresh: no credentials, aborting")
+            log.debug("runDiscoveryRefresh: no credentials, aborting")
             return
         }
-        print("[AppState] runDiscoveryRefresh: starting, home region = \(creds.region)")
+        log.debug("runDiscoveryRefresh: starting")
         let ec2 = EC2Service()
         let s3  = S3Service()
 
@@ -75,7 +78,7 @@ final class AppState {
         let instances = try? await instanceTask
         let buckets   = try? await bucketTask
 
-        print("[AppState] runDiscoveryRefresh: done — \(instances?.count ?? 0) instances, \(buckets?.count ?? 0) buckets")
+        log.debug("runDiscoveryRefresh: done — \(instances?.count ?? 0, privacy: .public) instances, \(buckets?.count ?? 0, privacy: .public) buckets")
 
         await MainActor.run {
             if let i = instances { discoveredInstances = i }

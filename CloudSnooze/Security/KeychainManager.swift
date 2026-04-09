@@ -31,9 +31,9 @@ final class KeychainManager {
 
     // MARK: - Key constants  (never change these — would invalidate stored creds)
     private enum Keys {
-        static let accessKey  = "com.skycontrol.aws.accessKeyId"
-        static let secretKey  = "com.skycontrol.aws.secretAccessKey"
-        static let region     = "com.skycontrol.aws.defaultRegion"
+        static let accessKey  = "ultara.cloud.CloudSnooze.accessKeyId"
+        static let secretKey  = "ultara.cloud.CloudSnooze.secretAccessKey"
+        static let region     = "ultara.cloud.CloudSnooze.defaultRegion"
     }
 
     // MARK: - Public API

@@ -119,10 +119,21 @@ final class AWSClient: @unchecked Sendable {
         return decoded.addingPercentEncoding(withAllowedCharacters: allowed) ?? decoded
     }
 
+    // MARK: - Dedicated session (explicit TLS floor, no shared cookie/credential storage)
+
+    private let session: URLSession = {
+        let config = URLSessionConfiguration.ephemeral
+        config.tlsMinimumSupportedProtocolVersion = .TLSv12
+        config.tlsMaximumSupportedProtocolVersion = .TLSv13
+        config.timeoutIntervalForRequest = 30
+        config.waitsForConnectivity = true
+        return URLSession(configuration: config)
+    }()
+
     // MARK: - Execute request
 
     nonisolated func execute(_ request: URLRequest) async throws -> Data {
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await AWSClient.shared.session.data(for: request)
         guard let http = response as? HTTPURLResponse else {
             throw AWSError.invalidResponse
         }
@@ -194,7 +205,13 @@ enum AWSError: LocalizedError {
         case .invalidResponse:
             return "Received an invalid response from the cloud API."
         case .httpError(let code, let body):
-            // Extract <Message> from AWS XML error if present
+            // Try JSON error body first (e.g. Cost Explorer)
+            if let data = body.data(using: .utf8),
+               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let msg = json["message"] as? String ?? json["Message"] as? String {
+                return "Cloud API error (\(code)): \(msg)"
+            }
+            // Fall back to XML <Message> tag (e.g. EC2, S3)
             if let range = body.range(of: "<Message>"),
                let endRange = body.range(of: "</Message>") {
                 let msg = String(body[range.upperBound..<endRange.lowerBound])

@@ -27,9 +27,6 @@ struct DashboardView: View {
 
                 ScrollView {
                     LazyVStack(spacing: 14) {
-                        // Top spacer for header
-                        Color.clear.frame(height: 80)
-
                         if sortedWidgets.isEmpty {
                             emptyDashboard
                         } else {

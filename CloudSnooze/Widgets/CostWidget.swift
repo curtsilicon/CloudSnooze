@@ -21,16 +21,14 @@ final class CostViewModel {
     func refresh(credentials: AWSCredentials) async {
         isLoading = true
         lastError = nil
-        async let costTask     = ce.getCurrentMonthCost(credentials: credentials)
-        async let forecastTask = ce.getMonthForecast(credentials: credentials)
         do {
-            let (cost, fc) = try await (costTask, forecastTask)
-            monthlyCost  = cost
-            forecast     = fc
-            lastRefresh  = .now
+            monthlyCost = try await ce.getCurrentMonthCost(credentials: credentials)
+            lastRefresh = .now
         } catch {
             lastError = error.localizedDescription
         }
+        // Forecast is best-effort — failure doesn't block the cost display
+        forecast = try? await ce.getMonthForecast(credentials: credentials)
         isLoading = false
     }
 }

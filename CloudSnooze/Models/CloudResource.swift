@@ -36,7 +36,6 @@ struct CloudResource: Identifiable, Codable, Hashable {
 enum CloudService: String, Codable, CaseIterable {
     case ec2  = "ec2"
     case s3   = "s3"
-    case cloudwatch = "cloudwatch"
     case costExplorer = "ce"
     case unknown = "unknown"
 
@@ -44,7 +43,6 @@ enum CloudService: String, Codable, CaseIterable {
         switch self {
         case .ec2:          return "EC2"
         case .s3:           return "S3"
-        case .cloudwatch:   return "CloudWatch"
         case .costExplorer: return "Cost Explorer"
         case .unknown:      return "Unknown"
         }
@@ -54,7 +52,6 @@ enum CloudService: String, Codable, CaseIterable {
         switch self {
         case .ec2:          return "server.rack"
         case .s3:           return "externaldrive.connected.to.line.below"
-        case .cloudwatch:   return "chart.line.uptrend.xyaxis"
         case .costExplorer: return "dollarsign.circle"
         case .unknown:      return "questionmark.circle"
         }
@@ -99,7 +96,11 @@ struct ARNParser {
                               omittingEmptySubsequences: false)
         guard parts.count >= 6, parts[0] == "arn" else { return false }
         let serviceStr = String(parts[2])
-        return !serviceStr.isEmpty
+        guard !serviceStr.isEmpty else { return false }
+        // Account ID must be empty (e.g. S3 global ARNs) or exactly 12 digits
+        let accountId = String(parts[4])
+        let accountIdValid = accountId.isEmpty || (accountId.count == 12 && accountId.allSatisfy(\.isNumber))
+        return accountIdValid
     }
 
     // MARK: Private helpers
@@ -175,18 +176,3 @@ struct S3Bucket: Identifiable, Codable {
     var creationDate: Date?
 }
 
-// MARK: - CloudWatch Datapoint
-
-struct MetricDatapoint: Codable, Identifiable {
-    let id:        UUID
-    let timestamp: Date
-    let value:     Double
-    let unit:      String
-
-    init(id: UUID = .init(), timestamp: Date, value: Double, unit: String) {
-        self.id        = id
-        self.timestamp = timestamp
-        self.value     = value
-        self.unit      = unit
-    }
-}

@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  CloudControl
+//  CloudSnooze
 //
 //  Created by dev on 3/13/26.
 //
