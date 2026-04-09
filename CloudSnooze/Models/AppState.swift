@@ -4,7 +4,7 @@
 import Foundation
 import os
 
-private let log = Logger(subsystem: "ultara.cloud.CloudSnooze", category: "AppState")
+private nonisolated(unsafe) let log = Logger(subsystem: "ultara.cloud.CloudSnooze", category: "AppState")
 
 @Observable
 final class AppState {

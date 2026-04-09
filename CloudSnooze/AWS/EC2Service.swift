@@ -5,7 +5,7 @@
 import Foundation
 import os
 
-private let log = Logger(subsystem: "ultara.cloud.CloudSnooze", category: "EC2")
+private nonisolated(unsafe) let log = Logger(subsystem: "ultara.cloud.CloudSnooze", category: "EC2")
 
 @Observable
 final class EC2Service {
